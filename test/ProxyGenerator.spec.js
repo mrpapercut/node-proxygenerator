@@ -96,7 +96,7 @@ describe('ProxyGenerator', function() {
             expect(myClass.getNull()).to.eql(null);
         });
 
-        it('should catch native functions', () => {
+        it('should not log native functions', () => {
             expect(myClass.hasOwnProperty('_name')).to.be.false;
         });
 

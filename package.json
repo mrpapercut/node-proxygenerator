@@ -1,10 +1,11 @@
 {
   "name": "node-proxygenerator",
   "version": "0.0.1",
-  "description": "Module to help create proxies for ES6 classes",
+  "description": "Module to help create tracing proxies for ES6 classes",
   "keywords": [
     "Proxy",
-    "es6"
+    "es6",
+    "tracing"
   ],
   "repository": {
     "type": "git",
