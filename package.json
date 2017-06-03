@@ -1,0 +1,23 @@
+{
+  "name": "node-proxygenerator",
+  "version": "1.0.0",
+  "description": "Module to help create proxies for ES6 classes",
+  "keywords": [
+    "wscript",
+    "emulator"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mrpapercut/wscript.git"
+  },
+  "main": "./src/ProxyGenerator.js",
+  "author": {
+    "name": "Mischa Rodermond",
+    "url": "https://www.mrpapercut.com"
+  },
+  "license": "MIT",
+  "engines": {
+    "node": ">=6.4.0"
+  },
+  "engineStrict": true
+}
