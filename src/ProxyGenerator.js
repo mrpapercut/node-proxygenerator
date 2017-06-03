@@ -3,9 +3,11 @@ class ProxyGenerator {
         const args = [...arguments];
         this._class = args.shift();
 
-        this.collect('CONSTRUCT', 'new MyClass', [...args]);
+        this.initializedClass = new this._class(...args);
 
-        return new Proxy(new this._class(...args), this.getProxyProps());
+        this.collect('CONSTRUCT', 'new ' + this.initializedClass.constructor.name, [...args]);
+
+        return new Proxy(this.initializedClass, this.getProxyProps());
     }
 
     getProxyProps() {
@@ -50,10 +52,13 @@ class ProxyGenerator {
             .replace(/toString|(function).*?(?=\\\()| for .+?(?=\\\])/g, '$1.*?')
             + '$');
 
-        const type = typeof value;
+        // TODO: use isNative for native properties too
+        // const type = typeof value;
+        // return type === 'function' ? reNative.test(fnToString.call(value))
+        // : (value && type === 'object' && reHostCtor.test(toString.call(value))) || false;
 
-        return type === 'function' ? reNative.test(fnToString.call(value))
-            : (value && type === 'object' && reHostCtor.test(toString.call(value))) || false;
+        return reNative.test(fnToString.call(value));
+
     }
 
     parseType(arg) {
