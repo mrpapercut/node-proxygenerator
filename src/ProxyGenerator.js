@@ -1,13 +1,21 @@
 class ProxyGenerator {
-    constructor() {
-        const args = [...arguments];
-        this._class = args.shift();
+    constructor(_class, _config) {
+        const self = this;
 
-        this.initializedClass = new this._class(...args);
+        this._class  = _class;
+        this._config = _config || {
+            logFunction: console.log
+        };
 
-        this.collect('CONSTRUCT', 'new ' + this.initializedClass.constructor.name, [...args]);
+        return class {
+            constructor() {
+                const args = [...arguments];
+                self.initializedClass = new self._class(...args);
+                self.log('CONSTRUCT', 'new ' + self.initializedClass.constructor.name, [...args]);
 
-        return new Proxy(this.initializedClass, this.getProxyProps());
+                return new Proxy(self.initializedClass, self.getProxyProps());
+            }
+        };
     }
 
     getProxyProps() {
@@ -17,13 +25,13 @@ class ProxyGenerator {
             get(target, propKey, receiver) {
                 // Accessing properties
                 if (target.hasOwnProperty(propKey)) {
-                    self.collect('GET', target.constructor.name + '.' + propKey, null, target[propKey]);
+                    self.log('GET', target.constructor.name + '.' + propKey, null, target[propKey]);
 
                 // Calling functions
                 } else if (typeof target[propKey] === 'function' && !self.isNative(target[propKey])) {
                     return new Proxy(target[propKey], {
                         apply(applyTarget, thisArg, args) {
-                            self.collect('CALL', thisArg.constructor.name + '.' + propKey, [...args]);
+                            self.log('CALL', thisArg.constructor.name + '.' + propKey, [...args]);
 
                             return Reflect.apply(applyTarget, thisArg, args);
                         }
@@ -33,7 +41,7 @@ class ProxyGenerator {
                 return target[propKey];
             },
             set(target, propKey, value, receiver) {
-                self.collect('SET', target.constructor.name + '.' + propKey, [value]);
+                self.log('SET', target.constructor.name + '.' + propKey, [value]);
                 return target[propKey] = value;
             }
         }
@@ -87,13 +95,13 @@ class ProxyGenerator {
         return res;
     }
 
-    collect(method, name, args, result) {
+    log(method, name, args, result) {
         args = args ? args.map(arg => this.parseType(arg)).join(', ') : '';
         if (method === 'CALL' || method === 'CONSTRUCT') args = `(${args})`;
         else if (method === 'SET') args = ` = ${args}`;
 
-        console.log(`> ${method} ${name}${args}`);
-        if (result) console.log(`< ${this.parseType(result)}`);
+        this._config.logFunction(`> ${method} ${name}${args}`);
+        if (result) this._config.logFunction(`< ${this.parseType(result)}`);
     }
 }
 

@@ -59,7 +59,8 @@ class TestClass {
 
 describe('ProxyGenerator', function() {
     describe('constructor()', function() {
-        const myClass = new ProxyGenerator(TestClass);
+        const MyProxyClass = new ProxyGenerator(TestClass);
+        const myClass = new MyProxyClass('Hello');
 
         it('should return instanceof original class', () => {
             expect(myClass instanceof TestClass).to.be.true;
@@ -101,6 +102,21 @@ describe('ProxyGenerator', function() {
 
         it('should be able to access properties', () => {
             expect(myClass.index).to.not.be.undefined;
+        });
+
+        it('should be able to overwrite logfunction', () => {
+            const logArr = [];
+            const logger = msg => logArr.push(msg);
+
+            const MyCustomProxyClass = new ProxyGenerator(TestClass, {
+                logFunction: logger
+            });
+
+            const myCustomLogClass = new MyCustomProxyClass();
+            myCustomLogClass.setMsg('Hello world');
+
+            // logArr should contain 3 entries
+            expect(logArr.length).to.eql(3);
         });
     });
 });
